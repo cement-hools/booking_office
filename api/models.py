@@ -1,4 +1,7 @@
+from django.contrib.auth import get_user_model
 from django.db import models
+
+User = get_user_model()
 
 
 class Office(models.Model):
@@ -17,7 +20,9 @@ class Booking(models.Model):
     date_from = models.DateTimeField(verbose_name='Дата начала бронирования', )
     date_to = models.DateTimeField(verbose_name='Дата окончание бронирования')
     # time = models.CharField(verbose_name='Время бронирования ', max_length=5)
-    tenant_name = models.CharField(verbose_name='ФИО', max_length=300)
+    tenant_name = models.ForeignKey(User, verbose_name='Бронирующий',
+                                    related_name='booking',
+                                    on_delete=models.CASCADE, )
     tenant_info = models.CharField(verbose_name='Инфо о бронировании',
                                    max_length=10000)
     office = models.ForeignKey(Office, verbose_name='Кабинет',

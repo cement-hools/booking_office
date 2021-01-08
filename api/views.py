@@ -1,13 +1,22 @@
+from django.contrib.auth import get_user_model
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.generics import get_object_or_404
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
 from .models import Office, Booking
-from .serializers import OfficeSerializer, BookingSerializer, \
-    TrainingSerializer
+from .serializers import (OfficeSerializer, BookingSerializer,
+                          TrainingSerializer, UserSerializer)
+
+User = get_user_model()
+
+
+class CreateUserView(ModelViewSet):
+    queryset = User.objects.all()
+    permission_classes = [AllowAny]
+    serializer_class = UserSerializer
 
 
 @api_view(['GET', 'POST'])
@@ -24,32 +33,19 @@ def get_booking(request, office_id):
         office = get_object_or_404(Office, id=office_id)
         booking = office.booking.all()
         serializer = BookingSerializer(booking, many=True)
-        # print(request.data)
         return Response(serializer.data)
     elif request.method == 'POST':
         serializer = BookingSerializer(data=request.data)
-        # print(request.data)
-        # apts_booked1 = Booking.objects.filter(Q(date_from__range=(query_start, query_end)) | Q(date_to__range=(query_start, query_end)
         if serializer.is_valid():
-            # date_from = serializer.validated_data['date_from']
-            # date_to = serializer.validated_data['date_to']
-            # booked1 = Booking.objects.filter(
-            #     Q(date_from__range=(date_from, date_to)) | Q(
-            #         date_to__range=(date_to, date_to)))
-            # booked2 = Booking.objects.filter(
-            #     date_from__lte=date_from).filter(date_to__gte=date_to)
-            # booked = booked1.exists() | booked2.exists()
-            # if booked:
-            #     print('занято')
-            #     raise serializers.ValidationError(
-            #         code=status.HTTP_400_BAD_REQUEST)
-            serializer.save()
+            if request.user.is_authenticated:
+                serializer.save(tenant_name=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+
 class BookingViewSet(ModelViewSet):
-    permission_classes = (AllowAny,)
+    permission_classes = (IsAuthenticatedOrReadOnly,)
     serializer_class = BookingSerializer
 
     def get_queryset(self):
@@ -65,12 +61,6 @@ class BookingViewSet(ModelViewSet):
 
 @api_view(['GET', 'POST'])
 def training(request):
-    # apts_booked1 = Rental.objects.values_list('id', flat=True).select_related().filter(
-    # Q(booking__arrival_date__range=(query_start, query_end)) | Q(booking__departure_date__range=(query_start, query_end))
-    # ).distinct('id')
-    # apts_booked2 = Rental.objects.values_list('id', flat=True).select_related().filter(
-    # booking__arrival_date__lte=query_start).filter(booking__departure_date__gte=query_end).distinct('id')
-    # apts_booked = apts_booked1 | apts_booked2
     if request.method == 'GET':
         booking = Booking.objects.all()
         first = booking[0]
