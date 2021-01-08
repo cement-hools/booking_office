@@ -1,3 +1,5 @@
+from django.conf import settings
+from django.conf.urls.static import static
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
@@ -17,3 +19,5 @@ urlpatterns = [
     path('tr', training, name='training'),
     path('', get_offices, name='get_offices'),
 ]
+
+urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
