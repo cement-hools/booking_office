@@ -98,8 +98,8 @@ def free_offices_view(request):
                 except Exception as exc:
                     print('---vsletela oshibka---', exc)
                     return Response({'error GET': ('формат ввода '
-                                                   'date_from=2021-01-08T13:00Z&'
-                                                   'date_to=2021-01-08T15:00Z')})
+                                                   'date_from=2021-01-08T13:00&'
+                                                   'date_to=2021-01-08T15:00')})
 
                 free_offices = Office.objects.prefetch_related(
                     'booking').exclude(
