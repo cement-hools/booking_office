@@ -76,6 +76,7 @@ class BookingsViewSet(ModelViewSet):
     serializer_class = BookingSerializer
 
     def perform_create(self, serializer):
+        print(serializer.validated_data)
         serializer.save(owner=self.request.user)
 
 

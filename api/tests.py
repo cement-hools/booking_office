@@ -108,6 +108,22 @@ class BookingApiTestCase(APITestCase):
         self.assertEqual(status.HTTP_400_BAD_REQUEST, response.status_code)
         self.assertEqual(2, Booking.objects.all().count())
 
+    def test_create_on_the_booked_date_2(self):
+        """Создание нового Booking на занятую дату."""
+        self.assertEqual(2, Booking.objects.all().count())
+        data = {
+            "date_from": "2021-01-07T11:00Z",
+            "date_to": "2021-01-07T13:00Z",
+            "tenant_info": "на забронированую",
+            "office": 2
+        }
+        url = reverse('booking-list', args=(self.booking_1.id,))
+        self.client.force_login(self.user_1)
+        response = self.client.post(url, data=data)
+
+        self.assertEqual(status.HTTP_201_CREATED, response.status_code)
+        self.assertEqual(3, Booking.objects.all().count())
+
     def test_free_offices_on_free_date(self):
         """Вывод мест в незанятую дату"""
         url = reverse('free_offices')
