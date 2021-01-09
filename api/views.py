@@ -65,6 +65,9 @@ class BookingsViewSet(ModelViewSet):
     permission_classes = (IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly)
     serializer_class = BookingSerializer
 
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
+
 
 @api_view(['GET'])
 def free_offices_view(request):
