@@ -5,7 +5,8 @@ from django.db.models import Q
 from rest_framework import status, mixins
 from rest_framework.decorators import api_view
 from rest_framework.generics import get_object_or_404
-from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
+from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly, \
+    IsAdminUser
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 
@@ -62,7 +63,11 @@ class OfficeBookingViewSet(ModelViewSet):
 
 class BookingsViewSet(ModelViewSet):
     queryset = Booking.objects.all()
-    permission_classes = (IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly)
+    permission_classes = (
+        IsAuthenticatedOrReadOnly,
+        IsOwnerOrReadOnly,
+        IsAdminUser
+    )
     serializer_class = BookingSerializer
 
     def perform_create(self, serializer):
