@@ -95,8 +95,8 @@ def free_offices_view(request):
                     date_from = datetime.strptime(get_date_from, date_format)
                     date_to = datetime.strptime(get_date_to, date_format)
                     print('---pereveli---')
-                except ValueError:
-                    print('---vsletela oshibka---')
+                except Exception as exc:
+                    print('---vsletela oshibka---', exc)
                     return Response({'error GET': ('формат ввода '
                                                    'date_from=2021-01-08T13:00Z&'
                                                    'date_to=2021-01-08T15:00Z')})
