@@ -127,21 +127,22 @@ class BookingApiTestCase(APITestCase):
     def test_free_offices_on_free_date(self):
         """Вывод мест в незанятую дату"""
         url = reverse('free_offices')
-        data = {
-            "date_from": "2021-03-07T21:00Z",
-            "date_to": "2021-03-07T23:00Z",
-        }
+        date_from = "2021-03-07T21:00"
+        date_to = "2021-03-07T23:00"
+        get_url = f"{url}?date_from={date_from}&date_to={date_to}"
+
         self.client.force_login(self.user_1)
-        response = self.client.get(url, data=data)
+        response = self.client.get(get_url)
+
         self.assertEqual(2, len(response.data))
 
     def test_free_offices_on_booking_date(self):
         """Вывод мест в незанятую дату и одно место входит в диапозон"""
-        date_from = "2021-01-07T10:00Z"
-        date_to = "2021-01-07T13:00Z"
+        date_from = "2021-01-07T10:00"
+        date_to = "2021-01-07T13:00"
         url = reverse('free_offices')
         get_url = f"{url}?date_from={date_from}&date_to={date_to}"
 
         self.client.force_login(self.user_1)
         response = self.client.get(get_url)
-        self.assertEqual(1, len(response.data))
+        self.assertEqual('#2', response.data[0]['info'])
