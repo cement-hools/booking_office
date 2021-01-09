@@ -86,7 +86,7 @@ def free_offices_view(request):
         if request.GET:
             get_date_from = request.GET.get('date_from')
             get_date_to = request.GET.get('date_to')
-
+            print('get_date_from:', get_date_from)
             if get_date_from and get_date_to:
                 date_format = '%Y-%m-%dT%H:%M%z'
                 try:
