@@ -5,6 +5,6 @@
 * api/auth/login/ 
 * api/auth/logout/ 
 * api/bookings/ все бронирования
-* api/offices/ все места
-* api/offices/free просмотр свободного места в заданный период ()
+* api/offices/ все места, админ может добавлять новые
+* api/offices/free просмотр свободного места в заданный период
 * api/office/1/booking/ все брони места 1 и бронирование места на определенный период
