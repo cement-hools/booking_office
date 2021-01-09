@@ -84,22 +84,17 @@ class BookingsViewSet(ModelViewSet):
 def free_offices_view(request):
     if request.method == 'GET':
         if request.GET:
-            get_date_from = request.GET.get('date_from')
-            get_date_to = request.GET.get('date_to')
-            print('get_date_from:', get_date_from)
+            get_date_from = request.GET.get('datetime_from')
+            get_date_to = request.GET.get('datetime_to')
             if get_date_from and get_date_to:
                 date_format = '%Y-%m-%dT%H:%M'
-                print('---date is True---')
                 try:
-                    print('---probuem perevesti---')
                     date_from = datetime.strptime(get_date_from, date_format)
                     date_to = datetime.strptime(get_date_to, date_format)
-                    print('---pereveli---')
                 except Exception as exc:
-                    print('---vsletela oshibka---', exc)
                     return Response({'error GET': ('формат ввода '
-                                                   'date_from=2021-01-08T13:00&'
-                                                   'date_to=2021-01-08T15:00')})
+                                                   'datetime_from=2021-01-08T13:00&'
+                                                   'datetime_to=2021-01-08T15:00')})
 
                 free_offices = Office.objects.prefetch_related(
                     'booking').exclude(
@@ -115,5 +110,5 @@ def free_offices_view(request):
                 serializer = OfficeSerializer(free_offices, many=True)
                 return Response(serializer.data)
         return Response({'error GET': ('формат ввода '
-                                       'date_from=2021-01-08T13:00Z&'
-                                       'date_to=2021-01-08T15:00Z')})
+                                       'datetime_from=2021-01-08T13:00Z&'
+                                       'datetime_to=2021-01-08T15:00Z')})

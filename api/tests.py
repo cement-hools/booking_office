@@ -61,10 +61,8 @@ class BookingApiTestCase(APITestCase):
     def test_get(self):
         """Получаем список всех Booking."""
         url = reverse('booking-list', args=(self.booking_1.id,))
-        # print('url:', url)
         bookings = Booking.objects.all()
         response = self.client.get(url)
-        # print(response.data)
         serializer_data = BookingSerializer(bookings, many=True).data
         self.assertEqual(status.HTTP_200_OK, response.status_code)
         self.assertEqual(serializer_data, response.data)
@@ -129,7 +127,7 @@ class BookingApiTestCase(APITestCase):
         url = reverse('free_offices')
         date_from = "2021-03-07T21:00"
         date_to = "2021-03-07T23:00"
-        get_url = f"{url}?date_from={date_from}&date_to={date_to}"
+        get_url = f"{url}?datetime_from={date_from}&datetime_to={date_to}"
 
         self.client.force_login(self.user_1)
         response = self.client.get(get_url)
@@ -141,8 +139,8 @@ class BookingApiTestCase(APITestCase):
         date_from = "2021-01-07T10:00"
         date_to = "2021-01-07T13:00"
         url = reverse('free_offices')
-        get_url = f"{url}?date_from={date_from}&date_to={date_to}"
+        get_url = f"{url}?datetime_from={date_from}&datetime_to={date_to}"
 
         self.client.force_login(self.user_1)
         response = self.client.get(get_url)
-        self.assertEqual('#2', response.data[0]['info'])
+        self.assertEqual('#2', response.data[0].get('info'))
