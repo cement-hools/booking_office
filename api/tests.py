@@ -124,10 +124,8 @@ class BookingApiTestCase(APITestCase):
         date_from = "2021-01-07T10:00Z"
         date_to = "2021-01-07T13:00Z"
         url = reverse('free_offices')
-        print(url)
         get_url = f"{url}?date_from={date_from}&date_to={date_to}"
-        print(get_url)
+
         self.client.force_login(self.user_1)
         response = self.client.get(get_url)
-        print(response.data)
         self.assertEqual(1, len(response.data))
