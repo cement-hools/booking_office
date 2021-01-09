@@ -89,10 +89,14 @@ def free_offices_view(request):
             print('get_date_from:', get_date_from)
             if get_date_from and get_date_to:
                 date_format = '%Y-%m-%dT%H:%M%z'
+                print('---date is True---')
                 try:
+                    print('---probuem perevesti---')
                     date_from = datetime.strptime(get_date_from, date_format)
                     date_to = datetime.strptime(get_date_to, date_format)
+                    print('---pereveli---')
                 except ValueError:
+                    print('---vsletela oshibka---')
                     return Response({'error GET': ('формат ввода '
                                                    'date_from=2021-01-08T13:00Z&'
                                                    'date_to=2021-01-08T15:00Z')})
