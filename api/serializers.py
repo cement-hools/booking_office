@@ -33,29 +33,26 @@ class BookingSerializer(ModelSerializer):
         fields = '__all__'
         model = Booking
 
-    tenant_name = serializers.SlugRelatedField(slug_field='username',
-                                               read_only=True)
+    owner = serializers.SlugRelatedField(slug_field='username', read_only=True)
 
     def create(self, validated_data):
         date_from = validated_data['date_from']
         date_to = validated_data['date_to']
+
+        if date_from >= date_to:
+            raise serializers.ValidationError(code=status.HTTP_400_BAD_REQUEST)
+
         booked_1 = Booking.objects.filter(
             Q(date_from__range=(date_from, date_to)) | Q(
                 date_to__range=(date_to, date_to)))
         booked_2 = Booking.objects.filter(
-            date_from__lte=date_from).filter(date_to__gte=date_to)
+            date_from__lte=date_from, date_to__gte=date_to)
         booked_3 = Booking.objects.filter(date_from__lte=date_to,
                                           date_to__gte=date_from)
 
         booked = booked_1.exists() | booked_2.exists() | booked_3.exists()
+
         if booked:
-            print('занято')
-            raise serializers.ValidationError(
-                code=status.HTTP_400_BAD_REQUEST)
+            raise serializers.ValidationError(code=status.HTTP_400_BAD_REQUEST)
+
         return Booking.objects.create(**validated_data)
-
-
-class TrainingSerializer(ModelSerializer):
-    class Meta:
-        fields = ('date_from', 'date_to',)
-        model = Booking

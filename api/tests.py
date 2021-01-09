@@ -3,8 +3,8 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from api.models import Office, Booking
-from api.serializers import BookingSerializer
+from .models import Office, Booking
+from .serializers import BookingSerializer, UserSerializer
 
 User = get_user_model()
 
@@ -20,26 +20,47 @@ class BookingApiTestCase(APITestCase):
         )
 
         self.office_1 = Office.objects.create(info='#1')
-        self.office_2 = Office.objects.create(info='#1')
+        self.office_2 = Office.objects.create(info='#2')
 
         self.booking_1 = Booking.objects.create(
             date_from="2021-01-07T10:00Z",
             date_to="2021-01-07T12:00Z",
-            tenant_name=self.user_1,
+            owner=self.user_1,
             tenant_info="первое",
             office=self.office_1
         )
         self.booking_2 = Booking.objects.create(
             date_from="2021-01-07T8:00Z",
             date_to="2021-01-07T9:00Z",
-            tenant_name=self.user_1,
+            owner=self.user_1,
             tenant_info="second",
             office=self.office_1
         )
 
+    def test_registration(self):
+        """Создание нового пользователя."""
+        self.assertEqual(2, User.objects.all().count())
+
+        data = {
+            'username': 'terminator',
+            'password': 'qwerty'
+        }
+
+        url = reverse('reg-list')
+        response = self.client.post(url, data=data)
+
+        self.assertEqual(status.HTTP_201_CREATED, response.status_code)
+        self.assertEqual(3, User.objects.all().count())
+
+        new_user = User.objects.all().last()
+        serializer_data = UserSerializer(new_user).data
+
+        self.assertEqual(response.data, serializer_data)
+        self.assertEqual('terminator', new_user.username)
+
     def test_get(self):
         """Получаем список всех Booking."""
-        url = reverse('get_booking', args=(self.booking_1.id,))
+        url = reverse('booking-list', args=(self.booking_1.id,))
         # print('url:', url)
         bookings = Booking.objects.all()
         response = self.client.get(url)
@@ -57,10 +78,10 @@ class BookingApiTestCase(APITestCase):
             "tenant_info": "на сутки",
             "office": 1
         }
-        url = reverse('get_booking', args=(self.booking_1.id,))
+        url = reverse('booking-list', args=(self.booking_1.id,))
         self.client.force_login(self.user_1)
         response = self.client.post(url, data=data)
-        # print(response.data)
+
         self.assertEqual(status.HTTP_201_CREATED, response.status_code)
         self.assertEqual(3, Booking.objects.all().count())
         new_booking = Booking.objects.all().last()
@@ -68,7 +89,7 @@ class BookingApiTestCase(APITestCase):
 
         self.assertEqual(response.data, serializer_data)
         self.assertEqual(self.user_1.username,
-                         new_booking.tenant_name.username)
+                         new_booking.owner.username)
         self.assertEqual(1, new_booking.office.id)
 
     def test_create_on_the_booked_date(self):
@@ -80,9 +101,33 @@ class BookingApiTestCase(APITestCase):
             "tenant_info": "на забронированую",
             "office": 1
         }
-        url = reverse('get_booking', args=(self.booking_1.id,))
+        url = reverse('booking-list', args=(self.booking_1.id,))
         self.client.force_login(self.user_1)
         response = self.client.post(url, data=data)
 
         self.assertEqual(status.HTTP_400_BAD_REQUEST, response.status_code)
         self.assertEqual(2, Booking.objects.all().count())
+
+    def test_free_offices_on_free_date(self):
+        """Вывод мест в незанятую дату"""
+        url = reverse('free_offices')
+        data = {
+            "date_from": "2021-03-07T21:00Z",
+            "date_to": "2021-03-07T23:00Z",
+        }
+        self.client.force_login(self.user_1)
+        response = self.client.get(url, data=data)
+        self.assertEqual(2, len(response.data))
+
+    def test_free_offices_on_booking_date(self):
+        """Вывод мест в незанятую дату и одно место входит в диапозон"""
+        date_from = "2021-01-07T10:00Z"
+        date_to = "2021-01-07T13:00Z"
+        url = reverse('free_offices')
+        print(url)
+        get_url = f"{url}?date_from={date_from}&date_to={date_to}"
+        print(get_url)
+        self.client.force_login(self.user_1)
+        response = self.client.get(get_url)
+        print(response.data)
+        self.assertEqual(1, len(response.data))
