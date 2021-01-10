@@ -88,8 +88,8 @@ def free_offices_view(request):
             get_date_from = request.GET.get('datetime_from')
             get_date_to = request.GET.get('datetime_to')
             if get_date_from and get_date_to:
-                get_date_from = get_date_from + 'Z'
-                get_date_to = get_date_to + 'Z'
+                get_date_from = get_date_from + '+00:00'
+                get_date_to = get_date_to + '+00:00'
                 date_format = '%Y-%m-%dT%H:%M%z'
 
                 def getDateTimeFromISO8601String(s):
