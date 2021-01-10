@@ -5,15 +5,15 @@ User = get_user_model()
 
 
 class Office(models.Model):
-    info = models.CharField(verbose_name='Инфо о кабинете', max_length=10000,
+    info = models.CharField(verbose_name='Инфо о Помещении', max_length=10000,
                             null=True)
 
     def __str__(self):
-        return f'Кабинет № {self.id}'
+        return f'Помещение № {self.id}'
 
     class Meta:
-        verbose_name_plural = 'Кабинеты'
-        verbose_name = 'Кабинет'
+        verbose_name_plural = 'Помещения'
+        verbose_name = 'Помещение'
 
 
 class Booking(models.Model):
@@ -24,12 +24,12 @@ class Booking(models.Model):
                               on_delete=models.CASCADE, )
     tenant_info = models.CharField(verbose_name='Инфо о бронировании',
                                    max_length=10000)
-    office = models.ForeignKey(Office, verbose_name='Кабинет',
+    office = models.ForeignKey(Office, verbose_name='Помещение',
                                related_name='booking',
                                on_delete=models.CASCADE, )
 
     def __str__(self):
-        return f'Кабинет №{self.office.id}: Бронь №{self.id}'
+        return f'Помещение №{self.office.id}: Бронь №{self.id}'
 
     class Meta:
         verbose_name_plural = 'Бронь'

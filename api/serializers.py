@@ -9,6 +9,7 @@ User = get_user_model()
 
 
 class UserSerializer(ModelSerializer):
+    """Сериалайзер регистрации."""
     password = serializers.CharField(write_only=True)
 
     class Meta:
@@ -16,6 +17,7 @@ class UserSerializer(ModelSerializer):
         fields = ('username', 'password',)
 
     def create(self, validated_data):
+        """Сохранение пользователи в модели User."""
         user = User.objects.create(username=validated_data['username'])
         user.set_password(validated_data['password'])
         user.save()
@@ -23,12 +25,14 @@ class UserSerializer(ModelSerializer):
 
 
 class OfficeSerializer(ModelSerializer):
+    """Сериалайзер помещений."""
     class Meta:
         fields = '__all__'
         model = Office
 
 
 class BookingSerializer(ModelSerializer):
+    """Сериалайзер бронирования."""
     class Meta:
         fields = '__all__'
         model = Booking
@@ -36,6 +40,7 @@ class BookingSerializer(ModelSerializer):
     owner = serializers.SlugRelatedField(slug_field='username', read_only=True)
 
     def create(self, validated_data):
+        """Функция создания бронирования с проверкой на незанятость."""
         date_from = validated_data['date_from']
         date_to = validated_data['date_to']
         office = validated_data['office']

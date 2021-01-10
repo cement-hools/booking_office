@@ -20,6 +20,7 @@ User = get_user_model()
 
 
 class CreateUserView(mixins.CreateModelMixin, GenericViewSet):
+    """Регистрация пользователя."""
     queryset = User.objects.all()
     permission_classes = [AllowAny]
     serializer_class = UserSerializer
@@ -28,6 +29,7 @@ class CreateUserView(mixins.CreateModelMixin, GenericViewSet):
 @api_view(['GET', 'POST'])
 @permission_classes([IsAdminUserOrReadOnly])
 def get_offices(request):
+    """Список всех помещений."""
     if request.method == 'GET':
         offices = Office.objects.all()
         serializer = OfficeSerializer(offices, many=True)
@@ -42,6 +44,7 @@ def get_offices(request):
 
 @api_view(['GET', 'POST'])
 def bookings_on_view(request, office_id):
+    """Бронирование через View функцию."""
     if request.method == 'GET':
         office = get_object_or_404(Office, id=office_id)
         booking = office.booking.all()
@@ -56,6 +59,7 @@ def bookings_on_view(request, office_id):
 
 
 class OfficeBookingViewSet(ModelViewSet):
+    """Бронирование конкретного помещения."""
     permission_classes = (IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly)
     serializer_class = BookingSerializer
 
@@ -70,6 +74,7 @@ class OfficeBookingViewSet(ModelViewSet):
 
 
 class BookingsViewSet(ModelViewSet):
+    """Бронирование через ModelViewSet."""
     queryset = Booking.objects.all()
     permission_classes = (
         IsAuthenticatedOrReadOnly,
@@ -84,6 +89,7 @@ class BookingsViewSet(ModelViewSet):
 
 @api_view(['GET'])
 def free_offices_view(request):
+    """Просмотр свободных помещений за период времени."""
     if request.method == 'GET':
         if request.GET:
             get_date_from = request.GET.get('datetime_from')

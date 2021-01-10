@@ -33,9 +33,7 @@ SECRET_KEY = '+h4us%02%nran23w*(d!sgm1n#sh7-f!++&)ipa79jslf%h1w='
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    '*'
-    # '127.0.0.1',
-    # '.herokuapp.com',
+    '.herokuapp.com',
 ]
 
 # Application definition
@@ -49,7 +47,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'rest_framework',
-    'rest_framework.authtoken',
     'django_filters',
 
     'api',
@@ -116,9 +113,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/3.1/topics/i18n/
 
-LANGUAGE_CODE = 'en'
+LANGUAGE_CODE = 'ru'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Moscow'
 
 USE_I18N = True
 
