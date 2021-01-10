@@ -1,6 +1,6 @@
 from datetime import datetime
 
-import dateutil.parser
+import pytz
 from django.contrib.auth import get_user_model
 from django.db.models import Q
 from rest_framework import status, mixins
@@ -10,6 +10,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 
+from booking_office import settings
 from .models import Office, Booking
 from .permissions import IsOwnerOrReadOnly, IsAdminUserOrReadOnly
 from .serializers import (OfficeSerializer, BookingSerializer,
@@ -88,23 +89,18 @@ def free_offices_view(request):
             get_date_from = request.GET.get('datetime_from')
             get_date_to = request.GET.get('datetime_to')
             if get_date_from and get_date_to:
-                get_date_from = get_date_from + '+00:00'
-                get_date_to = get_date_to + '+00:00'
-                date_format = '%Y-%m-%dT%H:%M%z'
-
-                def getDateTimeFromISO8601String(s):
-                    d = dateutil.parser.parse(s)
-                    return d
-
-                # a = getDateTimeFromISO8601String()
-                # print(a)
+                get_date_from = get_date_from
+                get_date_to = get_date_to
+                date_format = '%Y-%m-%dT%H:%M'
 
                 try:
-                    # date_from = dateutil.parser.isoparse(get_date_from)
-                    # date_to = dateutil.parser.isoparse(get_date_to)
-
                     date_from = datetime.strptime(get_date_from, date_format)
                     date_to = datetime.strptime(get_date_to, date_format)
+
+                    tz = pytz.timezone(settings.TIME_ZONE)
+                    date_from = tz.localize(date_from)
+                    date_to = tz.localize(date_to)
+
                 except Exception as exc:
                     print('---except---', exc)
                     return Response({'error GET': ('формат ввода '
@@ -125,5 +121,5 @@ def free_offices_view(request):
                 serializer = OfficeSerializer(free_offices, many=True)
                 return Response(serializer.data)
         return Response({'error GET': ('формат ввода '
-                                       'datetime_from=2021-01-08T13:00Z&'
-                                       'datetime_to=2021-01-08T15:00Z')})
+                                       'datetime_from=2021-01-08T13:00&'
+                                       'datetime_to=2021-01-08T15:00')})
