@@ -1,5 +1,6 @@
 from datetime import datetime
 
+import dateutil.parser
 from django.contrib.auth import get_user_model
 from django.db.models import Q
 from rest_framework import status, mixins
@@ -87,11 +88,25 @@ def free_offices_view(request):
             get_date_from = request.GET.get('datetime_from')
             get_date_to = request.GET.get('datetime_to')
             if get_date_from and get_date_to:
-                date_format = '%Y-%m-%dT%H:%M'
+                get_date_from = get_date_from + 'Z'
+                get_date_to = get_date_to + 'Z'
+                date_format = '%Y-%m-%dT%H:%M%z'
+
+                def getDateTimeFromISO8601String(s):
+                    d = dateutil.parser.parse(s)
+                    return d
+
+                # a = getDateTimeFromISO8601String()
+                # print(a)
+
                 try:
+                    # date_from = dateutil.parser.isoparse(get_date_from)
+                    # date_to = dateutil.parser.isoparse(get_date_to)
+
                     date_from = datetime.strptime(get_date_from, date_format)
                     date_to = datetime.strptime(get_date_to, date_format)
                 except Exception as exc:
+                    print('---except---', exc)
                     return Response({'error GET': ('формат ввода '
                                                    'datetime_from=2021-01-08T13:00&'
                                                    'datetime_to=2021-01-08T15:00')})
